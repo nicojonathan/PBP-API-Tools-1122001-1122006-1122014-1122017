@@ -1,45 +1,71 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"sync"
-	"time"
-	m "tools-api/models"
+	"log"
+
+	"tugas_explorasi_3_pbp/controllers"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	"github.com/jasonlvhit/gocron"
 )
 
-// TODO: cari kegunaan dari sync.WaitGroup
+func queryDatabase() ([]string, error) {
+	// Simulate database query
+	// You would replace this with your actual database query logic
+
+	// Open connection to the database
+	db, err := sql.Open("mysql", "root:@tcp(localhost:3306)/db_tugas_explorasi_3_pbp?parseTime=true&loc=Asia%2FJakarta")
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	// Perform the database query
+	rows, err := db.Query("SELECT username FROM users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Process the query result
+	var names []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		names = append(names, name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return names, nil
+}
 
 func main() {
-	var wg sync.WaitGroup
+	controllers.InitializeRedisClient()
 
-	// Contoh dummy data tasks list
-	tasks := []m.Task{
-		{ID: 1, Title: "Meeting", DueDate: time.Now().Add(5 * time.Second), Email: "user@example.com", Notified: false},
-		{ID: 2, Title: "Project Deadline", DueDate: time.Now().Add(10 * time.Second), Email: "user@example.com", Notified: false},
-		{ID: 3, Title: "Presentation", DueDate: time.Now().Add(15 * time.Second), Email: "user@example.com", Notified: false},
-	}
+	// Start HTTP server and handle login/connect routes
+	controllers.Token()
 
-	// Bikin GoRoutine untuk setiap task
-	for _, task := range tasks {
-		wg.Add(1)
-		go func(t m.Task) {
-			defer wg.Done()
-			for {
-				// Ini kalau kita mau ngirim emailnya setelah si tasknya udah lewat dari due date
-				if time.Now().After(t.DueDate) && !t.Notified {
-					fmt.Printf("Task %s is due!\n", t.Title)
-					// Kirim emailnya disini
-					// sendEmail(string recEmail, string subject, string content)
-					// Contoh: sendEmail(t.Email, "Task Due", "Your task "+t.Title+" is due now!")
-					t.Notified = true
-					break
-				}
-				time.Sleep(1 * time.Second)
-				// Ini refresh rate dari checking si tasknya
-				// Jadi kalau diatas dia akan ngecheck task tiap 1 detik
-			}
-		}(task)
-	}
+	router := mux.NewRouter()
 
-	wg.Wait()
+	router.HandleFunc("/login", controllers.CheckUserLogin).Methods("GET")
+
+	s := gocron.NewScheduler()
+
+	s.Every(1).Second().Do(func() {
+		names, err := queryDatabase()
+		if err != nil {
+			log.Println("Error querying database:", err)
+			return
+		}
+		fmt.Println("Query result:", names)
+	})
+
+	<-s.Start()
 }
