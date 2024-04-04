@@ -9,7 +9,7 @@ type User struct {
 	Password string `json:"password"`
 }
 
-type Tasks struct {
+type Task struct {
 	ID        int       `json:"id"`
 	UserID    int       `json:"user_id"`
 	Title     string    `json:"title"`

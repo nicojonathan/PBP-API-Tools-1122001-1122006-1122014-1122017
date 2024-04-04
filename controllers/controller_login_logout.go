@@ -24,7 +24,7 @@ func CheckUserLogin(w http.ResponseWriter, r *http.Request) {
 		sendResponse(w, http.StatusInternalServerError, "Login failed")
 	} else {
 		fmt.Println("Token will be generated")
-		generateToken(w, user.ID, user.Username)
+		generateToken(w, r, user.ID, user.Username)
 		sendResponse(w, http.StatusOK, "Login succeed")
 	}
 }

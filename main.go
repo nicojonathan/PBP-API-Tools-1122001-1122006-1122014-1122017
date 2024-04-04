@@ -48,32 +48,33 @@ func queryDatabase() ([]string, error) {
 }
 
 func main() {
-    // Initialize Redis client
-    controllers.InitializeRedisClient()
+	// Initialize Redis client
+	controllers.InitializeRedisClient()
 
 	// 	// Start HTTP server and handle login/connect routes
 	// 	//controllers.Token()
 
-    // Start HTTP server in a separate goroutine
-    go func() {
-        router := mux.NewRouter()
-        router.HandleFunc("/login", controllers.CheckUserLogin).Methods("GET")
-        fmt.Println("Connected to port 8888")
-        log.Println("Connected to port 8888")
-        log.Fatal(http.ListenAndServe(":8888", router))
-    }()
+	// Start HTTP server in a separate goroutine
+	go func() {
+		router := mux.NewRouter()
+		router.HandleFunc("/login", controllers.CheckUserLogin).Methods("GET")
 
-    // Start goCRON scheduler
-    s := gocron.NewScheduler()
-    s.Every(1).Second().Do(func() {
-        names, err := queryDatabase()
-        if err != nil {
-            log.Println("Error querying database:", err)
-            return
-        }
-        fmt.Println("Query result:", names)
-    })
-    <-s.Start() // This line will block indefinitely, so it's typically not used in a real application
+		log.Fatal(http.ListenAndServe(":8680", router))
+		fmt.Println("Connected to port 8888")
+		log.Println("Connected to port 8888")
+	}()
+
+	// Start goCRON scheduler
+	s := gocron.NewScheduler()
+	s.Every(1).Second().Do(func() {
+		names, err := queryDatabase()
+		if err != nil {
+			log.Println("Error querying database:", err)
+			return
+		}
+		fmt.Println("Query result:", names)
+	})
+	<-s.Start() // This line will block indefinitely, so it's typically not used in a real application
 }
 
 // func main() {
@@ -91,7 +92,7 @@ func main() {
 // 	fmt.Println("Connected to port 8888")
 // 	log.Println("Connected to port 8888")
 // 	log.Fatal(http.ListenAndServe(":8888", router))
-	
+
 // 	s := gocron.NewScheduler()
 
 // 	s.Every(1).Second().Do(func() {
