@@ -51,6 +51,8 @@ func queryDatabase() ([]m.Task, error) {
 func main() {
 	// Initialize Redis client
 	controllers.InitializeRedisClient()
+	// Initialize Redis client
+	controllers.InitializeRedisClient()
 
 	// 	// Start HTTP server and handle login/connect routes
 	// 	//controllers.Token()

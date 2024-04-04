@@ -18,10 +18,10 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func generateToken(w http.ResponseWriter, id int, username string) {
+func generateToken(w http.ResponseWriter, r *http.Request, id int, username string) {
 	tokenExpiryTime := time.Now().Add(5 * time.Minute)
 
-	// create claims with user data
+	// Create claims with user data
 	claims := &Claims{
 		ID:       id,
 		Username: username,
@@ -30,7 +30,7 @@ func generateToken(w http.ResponseWriter, id int, username string) {
 		},
 	}
 
-	// encrypt claim to jwt token
+	// Encrypt claim to jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(jwtKey)
 	if err != nil {
