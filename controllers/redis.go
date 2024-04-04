@@ -14,8 +14,8 @@ var client *redis.Client
 
 func InitializeRedisClient() {
 	client = redis.NewClient(&redis.Options{
-		Addr:     "redis-12848.c12.us-east-1-4.ec2.cloud.redislabs.com:12848", // Redis server address
-		Password: "DEGsSxWqRQHwncPvOSmSVbNh08HVm8Q9",                          // Redis password
+		Addr:     "redis-14879.c100.us-east-1-4.ec2.cloud.redislabs.com:14879", // Redis server address
+		Password: "JzQRabYn7F354Kc4drYqV92nz8SsLMqc",                          // Redis password
 	})
 }
 
@@ -30,7 +30,7 @@ func Token() {
 	http.HandleFunc("/login", handleLogin)
 	http.HandleFunc("/connect", handleConnect)
 
-	log.Fatal(http.ListenAndServe(":6379", nil))
+	log.Fatal(http.ListenAndServe(":14879", nil))
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {
