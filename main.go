@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 
 	"tugas_explorasi_3_pbp/controllers"
 
@@ -47,25 +48,60 @@ func queryDatabase() ([]string, error) {
 }
 
 func main() {
-	controllers.InitializeRedisClient()
+    // Initialize Redis client
+    controllers.InitializeRedisClient()
 
-	// Start HTTP server and handle login/connect routes
-	controllers.Token()
+	// 	// Start HTTP server and handle login/connect routes
+	// 	//controllers.Token()
 
-	router := mux.NewRouter()
+    // Start HTTP server in a separate goroutine
+    go func() {
+        router := mux.NewRouter()
+        router.HandleFunc("/login", controllers.CheckUserLogin).Methods("GET")
+        fmt.Println("Connected to port 8888")
+        log.Println("Connected to port 8888")
+        log.Fatal(http.ListenAndServe(":8888", router))
+    }()
 
-	router.HandleFunc("/login", controllers.CheckUserLogin).Methods("GET")
-
-	s := gocron.NewScheduler()
-
-	s.Every(1).Second().Do(func() {
-		names, err := queryDatabase()
-		if err != nil {
-			log.Println("Error querying database:", err)
-			return
-		}
-		fmt.Println("Query result:", names)
-	})
-
-	<-s.Start()
+    // Start goCRON scheduler
+    s := gocron.NewScheduler()
+    s.Every(1).Second().Do(func() {
+        names, err := queryDatabase()
+        if err != nil {
+            log.Println("Error querying database:", err)
+            return
+        }
+        fmt.Println("Query result:", names)
+    })
+    <-s.Start() // This line will block indefinitely, so it's typically not used in a real application
 }
+
+// func main() {
+// 	controllers.InitializeRedisClient()
+
+// 	// Start HTTP server and handle login/connect routes
+// 	//controllers.Token()
+
+// 	router := mux.NewRouter()
+
+// 	router.HandleFunc("/login", controllers.CheckUserLogin).Methods("GET")
+
+// 	http.Handle("/", router)
+
+// 	fmt.Println("Connected to port 8888")
+// 	log.Println("Connected to port 8888")
+// 	log.Fatal(http.ListenAndServe(":8888", router))
+	
+// 	s := gocron.NewScheduler()
+
+// 	s.Every(1).Second().Do(func() {
+// 		names, err := queryDatabase()
+// 		if err != nil {
+// 			log.Println("Error querying database:", err)
+// 			return
+// 		}
+// 		fmt.Println("Query result:", names)
+// 	})
+
+// 	<-s.Start()
+// }
