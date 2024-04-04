@@ -51,7 +51,7 @@ func generateToken(w http.ResponseWriter, id int, username string) {
 	InitializeRedisClient()
 	ctx := context.Background()
 	expirationDuration := time.Until(tokenExpiryTime)
-	err = client.Set(ctx, signedToken, username, expirationDuration).Err()
+	err = client.Set(ctx, username, signedToken, expirationDuration).Err()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
