@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/smtp"
+	"strconv"
 	"time"
 	"tugas_explorasi_3_pbp/controllers"
 	m "tugas_explorasi_3_pbp/models"
@@ -48,9 +50,31 @@ func queryDatabase() ([]m.Task, error) {
 	return tasks, nil
 }
 
+func sendMail(email string, subject string, message string, due time.Time) {
+	auth := smtp.PlainAuth(
+		"",
+		"gantengnic16@gmail.com", //ini tuh admin (pengirim)
+		"eshlwrkasazelgnz",
+		"smtp.gmail.com",
+	)
+
+	msg := fmt.Sprintf("Subject: %s\n\n%s\n%s", subject, message, "This task is due in " + strconv.Itoa(int(time.Until(due).Minutes())) + "  minutes")
+
+
+	err := smtp.SendMail(
+		"smtp.gmail.com:587",
+		auth,
+		"gantengnic16@gmail.com",
+		[]string{email}, //penerima notifikasi
+		[]byte(msg),
+	)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func main() {
-	// Initialize Redis client
-	controllers.InitializeRedisClient()
 	// Initialize Redis client
 	controllers.InitializeRedisClient()
 
@@ -69,7 +93,7 @@ func main() {
 
 	// Start goCRON scheduler
 	s := gocron.NewScheduler()
-	s.Every(1).Second().Do(func() {
+	s.Every(10).Second().Do(func() {
 
 		result, err := queryDatabase()
 		if err != nil {
@@ -79,19 +103,22 @@ func main() {
 		fmt.Println("Query result:", result)
 		for _, task := range result {
 			go func(t m.Task) {
-				for {
-					if time.Now().After(t.DueDate.Add(-10*time.Minute)) && t.Notified == 0 {
-						fmt.Printf("Task " + t.Title + " is due in 10 minutes!")
-						// Send email siniii
+					if time.Now().After(t.DueDate.Add(-10*time.Minute)) && time.Now().Before(t.DueDate) && t.Notified == 0 {
+						//fmt.Printf("Task " + t.Title + " is due in 10 minutes!")
+
+						sendMail(t.Email, t.Title, t.Details, t.DueDate)
+						controllers.UpdateNotified(t.ID)
+
 						// Query ke db update task notified++
 						return
-					} else if time.Now().After(t.DueDate.Add(-5*time.Minute)) && t.Notified == 1 {
-						fmt.Printf("Task " + t.Title + " is due in 5 minutes!")
-						// Send email siniii
-						// Query ke db update task notified++
+					} else if time.Now().After(t.DueDate.Add(-5*time.Minute)) && time.Now().Before(t.DueDate) && t.Notified == 1 {
+						//fmt.Printf("Task " + t.Title + " is due in 5 minutes!")
+
+						sendMail(t.Email, t.Title, t.Details, t.DueDate)
+						controllers.UpdateNotified(t.ID)
+
 						return
 					}
-				}
 			}(task)
 		}
 

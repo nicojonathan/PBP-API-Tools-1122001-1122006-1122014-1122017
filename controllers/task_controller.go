@@ -57,3 +57,11 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+func UpdateNotified(id int) {
+	db := connect()
+	defer db.Close()
+
+	updateQuery := "UPDATE tasks SET notified = notified + 1 WHERE ID = ?"
+	db.Exec(updateQuery, id)
+}

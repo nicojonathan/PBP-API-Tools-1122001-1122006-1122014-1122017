@@ -17,7 +17,7 @@ type Task struct {
 	DueDate   time.Time `json:"due_date"`
 	Details   string    `json:"details"`
 	Email     string    `json:"email"`
-	Notified  bool      `json:"notified"`
+	Notified  int      `json:"notified"`
 }
 
 type UserResponse struct {
