@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 03, 2024 at 01:23 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Apr 05, 2024 at 09:43 AM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,15 +33,24 @@ CREATE TABLE `tasks` (
   `title` varchar(255) DEFAULT NULL,
   `start_task` timestamp NOT NULL DEFAULT current_timestamp(),
   `due_date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `details` text DEFAULT NULL
+  `details` text DEFAULT NULL,
+  `notified` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tasks`
 --
 
-INSERT INTO `tasks` (`id`, `user_id`, `title`, `start_task`, `due_date`, `details`) VALUES
-(1, 4, 'mengerjakan tugas pbp', '2024-03-30 04:19:54', '2024-04-01 03:00:00', 'frontend, backend (go mail)');
+INSERT INTO `tasks` (`id`, `user_id`, `title`, `start_task`, `due_date`, `details`, `notified`) VALUES
+(1, 4, 'mengerjakan tugas pbp', '2024-03-30 04:19:54', '2024-04-01 03:00:00', 'frontend, backend (go mail)', 0),
+(2, 1, 'ngerjain metpen', '2024-04-04 10:38:11', '2024-04-04 11:29:00', 'Jangan lupa ngerjain metpen Bab 1 - 3', 1),
+(6, 1, 'siapin interview', '2024-04-05 02:36:36', '2024-04-05 02:40:00', 'siapin 3 minute presentation, jangan lupa print CV', 2),
+(7, 1, 'panasin motor', '2024-04-05 02:38:31', '2024-04-05 02:44:00', 'berangkat ke kampus jgn lupa', 2),
+(8, 1, 'jgn lupa mandi', '2024-04-05 02:44:20', '2024-04-05 02:50:00', 'berangkat ke kampus jgn lupa mandi dluuuu', 2),
+(9, 4, 'ngerjain tugas', '2024-04-05 06:21:40', '2024-04-05 02:50:00', 'tugas abc', 0),
+(10, 4, 'ngerjain tugas', '2024-04-05 06:22:13', '2024-04-05 06:25:00', 'tugas abc', 0),
+(11, 4, 'ngerjain tugas', '2024-04-05 06:28:26', '2024-04-05 06:35:00', 'tugas abc', 1),
+(12, 4, 'ngerjain tugas', '2024-04-05 06:39:57', '2024-04-05 06:49:00', 'tugas bcde', 2);
 
 -- --------------------------------------------------------
 
@@ -61,10 +70,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`) VALUES
-(1, 'jason', '', 'jason123'),
+(1, 'jason', 'jasonenrico79@gmail.com', 'jason123'),
 (2, 'alex', '', 'alex123'),
 (3, 'marcel', '', 'marcel123'),
-(4, 'nico', '', 'nico123');
+(4, 'nico', 'nicojonathan69@gmail.com', 'nico123');
 
 --
 -- Indexes for dumped tables
@@ -92,7 +101,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `users`
