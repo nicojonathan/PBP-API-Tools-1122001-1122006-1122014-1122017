@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -19,7 +21,7 @@ type Claims struct {
 }
 
 func generateToken(w http.ResponseWriter, id int, username string) {
-	tokenExpiryTime := time.Now().Add(5 * time.Minute)
+	tokenExpiryTime := time.Now().Add(15 * time.Minute)
 
 	// Create claims with user data
 	claims := &Claims{
@@ -47,11 +49,16 @@ func generateToken(w http.ResponseWriter, id int, username string) {
 		HttpOnly: true,
 	})
 
+	userId := strconv.Itoa(claims.ID)
+	values := []string{signedToken, userId}
+	
+	valuesJSON,_ := json.Marshal(values)
+
 	// Save token to Redis
 	InitializeRedisClient()
 	ctx := context.Background()
 	expirationDuration := time.Until(tokenExpiryTime)
-	err = client.Set(ctx, username, signedToken, expirationDuration).Err()
+	err = client.Set(ctx, username, valuesJSON, expirationDuration).Err()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

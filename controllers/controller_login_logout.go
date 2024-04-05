@@ -30,18 +30,19 @@ func CheckUserLogin(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 			if err == sql.ErrNoRows {
 				sendResponse(w, http.StatusBadRequest, "Invalid username / password!")
-				return
+				return 
 			}
 			sendResponse(w, http.StatusInternalServerError, "Login failed")
 		} else {
 			fmt.Println("Token will be generated")
 			generateToken(w, user.ID, user.Username)
 			sendResponse(w, http.StatusOK, "Login succeed")
+			return
 		}
 	} else {
 		sendResponse(w, http.StatusBadRequest, "You have already logged in!")
+		return 
 	}
-
 }
 
 // Logout...
